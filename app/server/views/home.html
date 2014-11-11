@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html ng-app="user" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Time Management</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/sb-admin.css" rel="stylesheet">
+    <link href="css/plugins/morris.css" rel="stylesheet">
+    <link href="font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <style type="text/css">
+             .bigGraph {width:700px;height:700px;}
+             .mediumGraph {width:400px;height:400px;float:left;}
+             .smallGraph {width:200px;height:200px;float:left;}
+    </style>
+</head>
+
+<body ng-controller="UserController as User">
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="home">Steal Your Time, Please!</a>
+            </div>
+            <!-- Top Menu Items -->
+            <ul class="nav navbar-right top-nav">
+                
+                <li  class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i>{{" "+User.Name}}<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-user"></i> Profile</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-fw fa-gear"></i> Settings</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a ng-click="User.signOut()" href="#"><i class="fa fa-fw fa-power-off"></i> Sign Out</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div id="page-wrapper" ng-controller="TabsDemoCtrl">
+            <tabset>
+                <tab heading="Task">
+                    <div id="page-wrapper">
+                        <div ng-controller="TaskController as taskCtrl" class="container-fluid" ng-init="taskCtrl.init()">
+                            <div class="row" ng-show="taskCtrl.runningTask">
+                                <div class="col-lg-4 text-center">
+                                    <div class="panel panel-green">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Task Name</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            
+                                            {{taskCtrl.runningTask.name}}
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 text-center">
+                                    <div class="panel panel-green">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Project Name</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            {{taskCtrl.runningTask.projectId.name}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 text-center">
+                                    <div class="panel panel-green">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title">Duration</h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            {{taskCtrl.duration}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row" ng-show="taskCtrl.runningTask">
+                                <div class="col-lg-2"></div>
+                                <div class="col-lg-2"></div>
+                                <div class="col-lg-2"></div>
+                                <div class="col-lg-2"></div>
+                                <div class="col-lg-2"></div>
+                                <button ng-click="taskCtrl.stopTask()" class="col-lg-2 btn  btn-danger">Stop</button>
+                            </div>
+                            <div ng-hide="taskCtrl.runningTask" class = "row">
+                                <form name="startForm" role="form" ng-submit="startForm.$valid && taskCtrl.startTask()">
+                                    <div class = "form-group" >
+                                        <label>Task Name</label>
+                                        <input class="form-control" ng-model="taskCtrl.newTask.name" required>
+                                    </div>
+
+                                    <div class = "form-group">
+                                        <label>Project Name</label>
+                                        <select class="form-control" ng-model="taskCtrl.newTask.project" ng-options="Project.name for Project in taskCtrl.Projects" required>
+                                        </select>
+                                    </div>
+                                    <div class = "form-group">
+                                        <div class="col-lg-3"></div>
+                                        <div class="col-lg-3"></div>
+                                        <div class="col-lg-3"></div>
+                                        <button type="submit" class="btn btn-primary col-lg-3">Start Task</button>
+                                       <!--  <button type="submit" class="btn btn-default">Stop Task</button> -->
+                                    </div>
+                                </form>
+                            </div>
+                            <div class = "row">
+                                <!-- <button ng-click="taskCtrl.test()">fsd</button> -->
+                            </div>
+                            <div class="row">
+                                <div infinite-scroll="taskCtrl.getTasks()" class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Task Name</th>
+                                                <th>Project Name</th>
+                                                <th>Start</th>
+                                                <th>End</th>
+                                                <th>Duration</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="task in taskCtrl.Tasks">
+                                                <td>{{task.name}}</td>
+                                                <td>{{task.projectId.name}}</td>
+                                                <td>{{task.start}}</td>
+                                                <td>{{task.end}}</td>
+                                                <td>{{task.duration}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </tab>
+                <tab heading="Project">
+                    <div id="page-wrapper">
+                        <div ng-controller="ProjectController as Project" class="container-fluid">
+                            <div>
+                                <form name="updateForm" ng-submit="Project.addProject()"
+                                class="form-group"> 
+                                    <div class="col-lg-8">
+                                        <label>Add Project</label>
+                                        <input class="form-control" type="text" ng-model="Project.newProject.name" required />
+                                    <p class="help-block">Your Project Name</p>
+                                    <div class="col-lg-2"></div>
+                                    <div class="col-lg-2"></div>
+                                    <div class="col-lg-2"></div>
+                                    <div class="col-lg-2"></div>
+                                    <div class="col-lg-2"></div>
+                                    <input type="submit" class="btn btn-lg btn-success col-lg-2" value="Add"></input>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <h2>Project List</h2>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover table-striped">
+                                            <thead>
+                                                <th>Name</th>
+                                                <th>Total Time</th>
+                                            </thead>
+                                            <tbody>
+                                                <tr ng-click="Project.addUpdateProject(pro._id)" ng-repeat="pro in Project.Projects">
+                                                    <td>{{pro.name}}</td>
+                                                    <td>{{pro.totalTime}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <h2>Project Details</h2>
+                                    <form name="updateForm" ng-submit="updateForm.$valid && Project.updateProject()"
+                                class="form-group"> 
+                                        <div class="col-lg-8">
+                                            <label>Project Name</label>
+                                            <input class="form-control" type="text" ng-model="Project.upProject.name" required />
+                                        <p class="help-block">New Project Name</p>
+                                        <input type="submit" class="btn btn-lg btn-primary" value="Update"></input>
+                                        <button ng-click="Project.deleteProject()" class="btn btn-lg btn-danger">Delete</button>
+                                        <button class="btn btn-lg btn-default" ng-controller="ReportController as reportCtrl" ng-click="reportCtrl.columnChart(Project.upProject._id)">Make Chart</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="row" ng-show="Project.Tasks.length>0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Task Name</th>
+                                                <th>Start</th>
+                                                <th>End</th>
+                                                <th>Duration</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="task in Project.Tasks">
+                                                <td>{{task.name}}</td>
+                                                <td>{{task.start}}</td>
+                                                <td>{{task.end}}</td>
+                                                <td>{{task.duration}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row">
+
+                            </div>
+
+                        </div>
+                    </div>
+                </tab>
+                <tab heading="Report">
+                    <div id="page-wrapper">
+                        <div ng-controller="ReportController as reportCtrl" class="container-fluid" ng-init="reportCtrl.init()">
+                            <div class="row">
+                                <button class="btn btn-primary" ng-click="reportCtrl.pieChart()">Make Pie Chart</button>
+                                <div google-chart class="bigGraph" chart="chartPieObject"></div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class = "form-group">
+                                    <label>Project Name</label>
+                                    <select class="form-control" ng-model="projectId" ng-options="Project.name for Project in Projects" required>
+                                    </select>
+                                </div>
+                                <button class="btn btn-primary" ng-click="reportCtrl.columnChart()">Make Bar Chart</button>
+                                <div google-chart chart="chartColumnObject" class="bigGraph"></div>
+                            </div>
+                        </div>
+                    </div>
+                </tab>
+            </tabset>
+        </div>
+        
+
+        
+        <div class="modal-alert modal hide fade">
+          <div class="modal-header">
+            <button data-dismiss="modal" class="close">x</button>
+            <h3></h3>
+          </div>
+          <div class="modal-body">
+            <p></p>
+          </div>
+          <div class="modal-footer">
+            <button data-dismiss="modal" id="ok" class="btn btn-warning">OK</button>
+          </div>
+        </div>
+    </div>
+    
+    <script src="/js/jquery-1.11.0.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/angular.min.js"></script>
+    <script src="/js/ui-bootstrap-tpls-0.11.2.min.js"></script>
+    <script src="/js/ng-infinite-scroll.min.js"></script>
+    <script src="/js/ng-google-chart.js"></script>
+    <!-- <script src="/js/jsapi.js"></script> -->
+    <script src="/js/views/home.js"></script>
+    
+    <script src="/js/plugins/morris/raphael.min.js"></script>
+    <script src="/js/plugins/morris/morris.min.js"></script>
+    <script src="/js/plugins/morris/morris-data.js"></script>
+    <script src="/vendor/jquery.min.js"></script>
+    <script src="/vendor/jquery.form.js"></script>
+    <script src="/vendor/bootstrap-modal.js"></script>
+    <script src="/vendor/bootstrap-transition.js"></script>
+    
+    <script src="/js/controllers/homeController.js"></script>
+    <script src="/js/form-validators/accountValidator.js"></script>
+
+    <script src="/js/moment.js"></script>
+    <script>
+        moment().format();
+    </script>
+</body>
+
+</html>
